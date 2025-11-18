@@ -44,7 +44,16 @@ const movieSchema = new mongoose.Schema(
       type: Boolean,
       default: true,
     },
+    statusRelease: {
+      type: String,
+      enum: ["upcoming", "nowShowing", "released"],
+      default: "upcoming",
+    },
     releaseDate: {
+      type: Date,
+      required: true,
+    },
+    endDate: {
       type: Date,
       required: true,
     },
@@ -58,7 +67,6 @@ const movieSchema = new mongoose.Schema(
     },
     subTitleLanguage: {
       type: String,
-      required: true,
     },
     isHot: {
       type: Boolean,
