@@ -2,10 +2,10 @@ import handleAsync from "../../common/utils/async-handler.js";
 import createResponse from "../../common/utils/create-response.js";
 import {
   createGenreService,
-  getAllGenreService,
-  getDetailGenreService,
   updateGenreService,
   updateStatusGenreService,
+  getAllGenreService,
+  getDetailGenreService,
 } from "./genre.service.js";
 
 export const getAllGenre = handleAsync(async (req, res) => {

@@ -8,15 +8,22 @@ import notFoundHandler from "./src/common/middlewares/not-found.middleware.js";
 import routes from "./src/routes.js";
 import { checkVersion } from "./src/common/configs/node-version.js";
 import connectDB from "./src/common/configs/database.js";
+import dotenv from "dotenv";
 import { movieStatusJob } from "./src/jobs/statusMovieJob.js";
-
+import { seatStatusJob } from "./src/jobs/seatStatusJob.js";
+import { initSocket } from "./src/modules/socket/index.js";
+import http from "http";
+import { showtimeStatusJob } from "./src/jobs/statusShowtimeJob.js";
 checkVersion();
-
+dotenv.config({});
 const app = express();
 
 app.use(express.json());
 app.use(cors());
-app.use(morgan("dev"));
+if (NODE_ENV === "development") {
+  app.use(morgan("dev"));
+}
+app.get("/", (_, res) => res.json("hello word"));
 app.use("/api", routes);
 
 app.use(jsonValidator);
@@ -27,10 +34,16 @@ let server;
 
 connectDB()
   .then(() => {
+    console.log("✓ Connected to MongoDB");
+    server = http.createServer(app);
+    initSocket(server);
+    showtimeStatusJob();
+    seatStatusJob();
     movieStatusJob();
-    server = app.listen(PORT, () => {
+    server.listen(PORT, () => {
+      console.log("API Server Started");
       if (NODE_ENV === "development") {
-        console.log(`http://localhost:${PORT}/api`);
+        console.log(`• API: http://localhost:${PORT}/api`);
       }
     });
   })

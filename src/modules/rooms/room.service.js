@@ -5,7 +5,7 @@ import Room from "./room.model.js";
 
 export const getSeatByRoomService = async (roomId) => {
   const room = await Room.findById(roomId);
-  if (!room) throwError(400, "Không tìm thấy phòng chiếu!");
+  if (!room) throwError(404, "Không tìm thấy phòng chiếu!");
   const seats = await Seat.find({ roomId: room._id });
   return { ...room.toObject(), seats };
 };
@@ -21,16 +21,17 @@ export const getDetailRoomService = async (id) => {
 };
 
 export const createRoomService = async (payload) => {
-  const existed = await Room.findOne({
+  const existing = await Room.findOne({
     name: { $regex: `^${payload.name}$`, $options: "i" },
   });
-  if (existed) throwError(400, "Phòng chiếu này đã tồn tại trong hệ thống!");
+  if (existing) throwError(400, "Phòng chiếu này đã tồn tại trong hệ thống!");
+
   const room = await Room.create({ ...payload });
-  const seatsWithId = payload.seats.map((item) => ({
+  const seatWithId = payload.seats.map((item) => ({
     ...item,
     roomId: room._id,
   }));
-  const seats = await Seat.insertMany(seatsWithId);
+  const seats = await Seat.insertMany(seatWithId);
   await room.save();
   return { ...room.toObject(), seats };
 };
@@ -41,12 +42,14 @@ export const updateRoomService = async (id, payload) => {
     _id: { $ne: id },
     name: { $regex: `^${payload.name}$`, $options: "i" },
   });
-  if (existed) throwError(400, "Phòng chiếu này đã tồn tại trong hệ thống");
+  if (existed) throwError(400, "Phòng chiếu này đã tồn tại trong hệ thống!");
+
   const updatedRoom = await Room.findByIdAndUpdate(id, rest, { new: true });
-  if (!updatedRoom) throwError(400, "Phòng không tồn tại");
+  if (!updatedRoom)
+    throwError(404, "Phòng chiếu không tồn tại trong hệ thống!");
   if (seats && seats.length > 0) {
     const existingSeats = await Seat.find({ roomId: id });
-    const bulkOps = seats
+    const bulkops = seats
       .map((seat) => {
         const exist = existingSeats.find((s) => s._id.toString() === seat._id);
         if (!exist) return null;
@@ -66,8 +69,8 @@ export const updateRoomService = async (id, payload) => {
         return null;
       })
       .filter(Boolean);
-    if (bulkOps.length > 0) {
-      await Seat.bulkWrite(bulkOps);
+    if (bulkops.length > 0) {
+      await Seat.bulkWrite(bulkops);
     }
   }
   return updatedRoom;
@@ -75,13 +78,13 @@ export const updateRoomService = async (id, payload) => {
 
 export const updateRoomStatusService = async (id) => {
   const findRoom = await Room.findById(id);
-  if (!findRoom) throwError(400, "Phòng chiếu không tồn tại");
+  if (!findRoom) throwError(404, "Phòng chiếu không tồn tại!");
   findRoom.status = !findRoom.status;
   const updated = await findRoom.save();
   return {
     data: updated,
     message: updated.status
-      ? "Kích hoạt phòng thành công. Các xuất chiếu sẽ hoạt động trở lại"
+      ? "Kích hoạt phòng chiếu thành công. Các xuất chiếu sẽ hoạt động trở lại"
       : "Khoá phòng thành công. Các xuất chiếu sẽ bị tạm ngưng!",
   };
 };

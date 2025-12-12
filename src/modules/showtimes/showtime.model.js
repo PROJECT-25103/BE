@@ -8,25 +8,54 @@ const showtimeSchema = new mongoose.Schema(
       ref: "Movie",
       required: true,
     },
+
     roomId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Room",
       required: true,
     },
-    startTime: { type: Date, required: true },
-    dayOfWeek: { type: Number, required: true },
-    endTime: { type: Date, required: true },
-    price: [
+
+    startTime: {
+      type: Date,
+      required: true,
+    },
+
+    dayOfWeek: {
+      type: Number,
+      required: true,
+    },
+
+    endTime: {
+      type: Date,
+      required: true,
+    },
+
+    reservedSeats: [
       {
-        seatType: { type: String, required: true },
-        value: { type: Number, required: true },
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Seat",
       },
     ],
+
+    price: [
+      {
+        seatType: {
+          type: String,
+          required: true,
+        },
+        value: {
+          type: Number,
+          required: true,
+        },
+      },
+    ],
+
     status: {
       type: String,
       enum: Object.values(SHOWTIME_STATUS),
       default: SHOWTIME_STATUS.SCHEDULED,
     },
+
     cancelDescription: {
       type: String,
       required: function () {

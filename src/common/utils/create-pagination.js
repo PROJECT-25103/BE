@@ -6,7 +6,12 @@ export const createPagination = (items, page = 1, limit = 10) => {
     const endIndex = page * limit;
     return {
       data: items.slice(startIndex, endIndex),
-      meta: { total, page, limit, totalPages },
+      meta: {
+        total,
+        page,
+        limit,
+        totalPages,
+      },
     };
   } else {
     const allKeys = Object.keys(items).sort();
@@ -14,16 +19,21 @@ export const createPagination = (items, page = 1, limit = 10) => {
     const totalPages = Math.ceil(total / limit);
     const startIndex = (page - 1) * limit;
     const endIndex = page * limit;
-    const pagedKeys = allKeys.slice(startIndex, endIndex);
+    const pageKeys = allKeys.slice(startIndex, endIndex);
 
-    const pagedMap = {};
-    pagedKeys.forEach((key) => {
-      pagedMap[key] = items[key];
+    const pageMap = {};
+    pageKeys.forEach((key) => {
+      pageMap[key] = items[key];
     });
 
     return {
-      data: pagedMap,
-      meta: { total, page, limit, totalPages },
+      data: pageMap,
+      meta: {
+        total,
+        page,
+        limit,
+        totalPages,
+      },
     };
   }
 };

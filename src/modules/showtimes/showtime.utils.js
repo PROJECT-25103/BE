@@ -1,7 +1,7 @@
 import dayjs from "dayjs";
 import { throwError } from "../../common/utils/create-response.js";
 import Movie from "../movie/movie.model.js";
-import Room from "../room/room.model.js";
+import Room from "../rooms/room.model.js";
 import Showtime from "./showtime.model.js";
 
 export const checkAvaiableMovie = async (movieId) => {

@@ -1,12 +1,12 @@
-import dayjs from "dayjs";
 import handleAsync from "../../common/utils/async-handler.js";
 import createResponse from "../../common/utils/create-response.js";
+import dayjs from "dayjs";
 import {
   createManyShowtimeService,
   createShowtimeService,
   getAllShowtimeService,
-  getMovieHasShowtimeService,
   getShowtimesByWeekdayService,
+  getMovieHasShowtimeService,
   updateShowtimeService,
 } from "./showtime.service.js";
 import { DAY_NAMES } from "../../common/constants/showtime.js";
@@ -14,7 +14,7 @@ import { DAY_NAMES } from "../../common/constants/showtime.js";
 export const getAllShowtime = handleAsync(async (req, res) => {
   const { query } = req;
   const showtimes = await getAllShowtimeService(query);
-  return createResponse(res, 200, "OK", showtimes.data, showtimes.meta);
+  return createResponse(res, 200, "OK", showtimes.data, showtimes.data);
 });
 
 export const getShowtimesByWeekday = handleAsync(async (req, res) => {
@@ -52,6 +52,6 @@ export const createManyShowtime = handleAsync(async (req, res) => {
 
 export const updateShowtime = handleAsync(async (req, res) => {
   const { body, params } = req;
-  const data = await updateShowtimeService(body, params);
+  const data = await updateShowtimeService(body, params.id);
   return createResponse(res, 200, "Cập nhật xuất chiếu thành công!", data);
 });

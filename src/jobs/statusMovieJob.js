@@ -23,7 +23,7 @@ export const movieStatusJob = () => {
       ]);
       console.log("Cập nhật statusRelease cho tất cả phim thành công!");
     } catch (err) {
-      console.error("Lỗi khi cập nhật statusRelease:", err);
+      console.log("Lỗi khi cập nhật statusRelease:", err);
     }
   });
 };

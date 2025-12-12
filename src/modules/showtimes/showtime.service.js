@@ -1,5 +1,7 @@
 import dayjs from "dayjs";
+import { apiQuery } from "../../common/utils/api-query.js";
 import { throwError } from "../../common/utils/create-response.js";
+import Showtime from "./showtime.model.js";
 import {
   calculatorEndTime,
   checkAvaiableMovie,
@@ -7,9 +9,7 @@ import {
   checkConflictShowtime,
   generateShowtime,
 } from "./showtime.utils.js";
-import Showtime from "./showtime.model.js";
 import { SHOWTIME_STATUS } from "../../common/constants/showtime.js";
-import { apiQuery } from "../../common/utils/api-query.js";
 import { createPagination } from "../../common/utils/create-pagination.js";
 
 export const getAllShowtimeService = async (query) => {
@@ -58,14 +58,14 @@ export const getMovieHasShowtimeService = async (query) => {
       if (startTime.isAfter(existing.lastStartTime)) {
         existing.lastStartTime = startTime;
       }
-      existing.dayOfWeeks.add(dayOfWeek);
+      existing.dayOfWeek.add(dayOfWeek);
     } else {
       moviesMap.set(movieId, {
         ...showtime.movieId.toObject(),
         showtimeCount: 1,
         firstStartTime: startTime,
         lastStartTime: startTime,
-        dayOfWeeks: new Set([dayOfWeek]),
+        dayOfWeek: new Set([dayOfWeek]),
       });
     }
   }
@@ -73,7 +73,7 @@ export const getMovieHasShowtimeService = async (query) => {
     ...movie,
     firstStartTime: movie.firstStartTime.toDate(),
     lastStartTime: movie.lastStartTime.toDate(),
-    dayOfWeeks: Array.from(movie.dayOfWeeks).sort(),
+    dayOfWeek: Array.from(movie.dayOfWeek).sort(),
   }));
 
   const startIndex = (page - 1) * limit;
@@ -95,22 +95,28 @@ export const createShowtimeService = async (payload) => {
   const { movieId, roomId, startTime } = payload;
   if (dayjs(startTime).isBefore(dayjs()))
     throwError(400, "Thời gian chiếu phải là ngày tương lai!");
-  if (dayjs(startTime).isBefore(dayjs().add(30, "minute")))
-    throwError(400, "Thời gian chiếu phải ít nhất 30 phút từ bây giờ!");
+  if (dayjs(startTime).isBefore(dayjs().add(30, "minutes")))
+    throwError(
+      400,
+      "Thời gian chiếu phải cách thời gian hiện tại ít nhất 30 phút!",
+    );
 
   const [movie] = await Promise.all([
     checkAvaiableMovie(movieId),
     checkAvaiableRoom(roomId),
   ]);
+
   const { dayOfWeek, endTime } = calculatorEndTime(movie.duration, startTime);
   const conflict = await checkConflictShowtime(roomId, startTime, endTime);
   console.log(conflict);
+
   if (conflict) {
     throwError(
       400,
       `Phòng chiếu ${conflict.roomId.name} đã có xuất chiếu vào lúc ${dayjs(conflict.startTime).format("HH:mm, [Ngày] DD [Tháng] MM [Năm] YYYY")}`,
     );
   }
+
   const showtime = await Showtime.create({ ...payload, dayOfWeek, endTime });
   return showtime;
 };
@@ -121,6 +127,7 @@ export const createManyShowtimeService = async (payload) => {
   if (!dayjs(startDate).isBefore(dayjs(endDate))) {
     throwError(400, "Thời gian bắt đầu phải nhỏ hơn thời gian kết thúc");
   }
+
   const showtimes = await generateShowtime(
     otherPayload,
     startDate,
@@ -128,6 +135,7 @@ export const createManyShowtimeService = async (payload) => {
     dayOfWeeks,
     fixedHour,
   );
+
   const createShowtimes = Showtime.insertMany(showtimes);
   return createShowtimes;
 };

@@ -40,5 +40,4 @@ const seatSchema = new mongoose.Schema(
 );
 
 const Seat = mongoose.model("Seat", seatSchema);
-
 export default Seat;
