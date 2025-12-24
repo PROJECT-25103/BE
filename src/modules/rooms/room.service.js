@@ -78,7 +78,7 @@ export const updateRoomService = async (id, payload) => {
       dbSeat.type !== feSeat.type ||
       dbSeat.status !== feSeat.status ||
       dbSeat.span !== (feSeat.span || 1);
-    if (changed) {
+    if(changed) {
       bulkOps.push({
         deleteOne: {
           filter: { roomId: id, id: feSeat.id },
@@ -98,12 +98,12 @@ export const updateRoomService = async (id, payload) => {
           },
         },
       });
-    }
+    }  
   });
   if (bulkOps.length > 0) {
     await Seat.bulkWrite(bulkOps);
   }
-  return updatedRoom;
+return updatedRoom;
 };
 
 export const updateRoomStatusService = async (id) => {

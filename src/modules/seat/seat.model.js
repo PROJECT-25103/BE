@@ -4,7 +4,7 @@ const seatSchema = new mongoose.Schema(
   {
     id: {
       type: String,
-      requred: true,
+      required: true,
     },
     roomId: {
       type: mongoose.Schema.Types.ObjectId,
