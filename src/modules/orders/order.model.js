@@ -74,8 +74,8 @@ const orderSchema = new mongoose.Schema(
     },
     status: {
       type: String,
-      enum: ["buyed", "used", "cancelled"],
-      default: "buyed",
+      enum: ["pending", "buyed", "used", "cancelled"],
+      default: "pending",
     },
     isPaid: {
       type: Boolean,
