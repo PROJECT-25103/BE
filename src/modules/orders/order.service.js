@@ -57,6 +57,11 @@ export const getMyOrdersService = async (userId, query) => {
   const result = await apiQuery(Order, filters);
   return result;
 };
+export const getDetailOrderService = async (id) => {
+  const order = await Order.findById(id);
+  if (!order) throwError(400, "Không tìm thấy đơn hàng");
+  return order;
+};
 
 export const checkoutReturnPayosService = async (params) => {
   const order = await Order.findOne({ codePayment: params.orderCode });
